@@ -63,6 +63,11 @@ function Bullet(x, y, dirX, dirY, shootersId, enemyShoot) {
 	this.enemyShoot = enemyShoot;
 	this.lifeSpan = 3;
 
+	this.delete = function () {
+		this.x = null;
+		this.y = null;
+	}
+
 	this.update = function () {
 		if (this.x && this.y) {
 			this.x += dirX * this.speed;
@@ -102,11 +107,12 @@ function checkBullets() {
 		//----------------Boxy
 		for (var j = 0; j < eventBoxesS.length; j++) {
 			var distToBox = Math.sqrt(Math.pow(playersBulletsS[i].x - eventBoxesS[j].x, 2) + (Math.pow(playersBulletsS[i].y - eventBoxesS[j].y, 2)));
-			if (distToBox <= 8) {
+			if (distToBox <= 7) {
 				//	console.log(Math.pow(playersBulletsS[i].x - eventBoxesS[j].x,2));
 				//	console.log(distToBox + "  " + eventBoxesS[j]);
 				eventBoxesS[j] = [];
 				//delete playersBulletsS[i];
+				playersBulletsS[i].delete();
 			}
 		} //-------Koniec Boxow
 
@@ -121,7 +127,7 @@ function checkBullets() {
 					players[j].hp = 100;
 				} /////---------------------------------------------------/////Tu skonczylem
 				//	delete playersBulletsS[i];
-
+				playersBulletsS[i].delete();
 			}
 		} //-----------------Koniec graczy
 

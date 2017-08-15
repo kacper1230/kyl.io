@@ -14,19 +14,29 @@ function playMusic() {
 	music.play();
 }
 
+function setNick() {
+	nick = document.getElementById('nick').value;
+	$('#nickModal').modal('hide');
+	delete ball; 
+	ball = new Ball(random(width), random(height), 16, true, false);
+}
+
 function setup() {
 	createCanvas(1000, 600);
 
-	socket = io.connect('http://servergierki.eu-4.evennode.com/');
-	//socket = io.connect('http://localhost:3000');
+	//socket = io.connect('http://servergierki.eu-4.evennode.com/');
+	socket = io.connect('http://localhost:3000');
 	socket.on('polaczenie', function (data) {
 		console.log(data);
 	});
 
-	ball = new Ball(random(width), random(height), 16, true, false);
+	ball = new Ball(700,1200 , 16, true, false);
 
 	//	enemy1 = new Enemy(this.ball.pos);
 	//	enemies.push(enemy1);
+
+
+
 
 	nick = "Nowy Gracz";
 
@@ -38,7 +48,7 @@ function setup() {
 		alive: ball.alive,
 		v: vC,
 	}
-	
+
 	socket.emit('nowyGracz', daneGracza);
 
 
@@ -50,8 +60,8 @@ function setup() {
 
 	socket.on('gracze', function (players) {
 		gracze = players;
-		for(var i = 0 ; i < gracze.length ; i++){
-			if(gracze[i].id == socket.id){
+		for (var i = 0; i < gracze.length; i++) {
+			if (gracze[i].id == socket.id) {
 				ball.hp = gracze[i].hp;
 			}
 		}
@@ -63,7 +73,7 @@ function setup() {
 
 	socket.on('playersBullets', function (playersBulletsS) {
 		playersBulletsC = playersBulletsS;
-	//	console.log(playersBulletsC);
+		//	console.log(playersBulletsC);
 	});
 
 }
@@ -100,7 +110,7 @@ function draw() {
 			fill(255, 0, 255);
 			text(gracze[i].points.toString(), gracze[i].x + 20, gracze[i].y)
 		}
-		if(gracze[i].id == socket.id){
+		if (gracze[i].id == socket.id) {
 			ball.hp = gracze[i].hp;
 		}
 
@@ -137,11 +147,11 @@ function draw() {
 	}
 
 	for (var i = 0; i < playersBulletsC.length; i++) {
-//		playersBulletsC[i].show();
-		if(playersBulletsC[i].shootersId == socket.id){
+		//		playersBulletsC[i].show();
+		if (playersBulletsC[i].shootersId == socket.id) {
 			fill(0, 255, 0);
-		}else{
-			fill(255,0,0);
+		} else {
+			fill(255, 0, 0);
 		}
 		rect(playersBulletsC[i].x, playersBulletsC[i].y, 3, 3);
 	}

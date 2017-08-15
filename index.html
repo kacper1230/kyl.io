@@ -1,14 +1,22 @@
 <!doctype html>
-<div class="modal fade nickModal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModal">
+<div class="modal fade nickModal" id="nickModal" tabindex="-1" role="dialog" aria-labelledby="myModal">
 	<div class="modal-dialog modal-sm" role="document">
 		<div class="modal-content">
-			<h2>Nick : </h2>
-			<form>
-				<div class="form-group">
-					<input type="text" class="form-control" id="nick" value="" placeholder="Wpisz swoj nick">
+			<div class="panel">
+				<div class="panel-heading">
+					<!--					<h2 class="text-center">Welcome to kyl.io</h2>-->
+					<h2 class="text-center">Witam</h2>
 				</div>
-			</form>
-
+				<div class="panel-body">
+					<div class="form-group">
+						<!--						<input type="text" class="form-control" id="nick" value="" placeholder="Set your nickname"><br>-->
+						<input type="text" class="form-control" maxlength="10" id="nick" value="" placeholder="Ustaw nick"><br>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<input class="form-control btn btn-success btn-sm" type="button" onclick="setNick()" value="Start !">
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -16,6 +24,7 @@
 <html>
 
 <head>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/p5.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.dom.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.sound.min.js"></script>
@@ -26,29 +35,24 @@
 	<script src="bullet.js"></script>
 	<script src="enemy.js"></script>
 	<script src="eventRect.js"></script>
-	<script src="modalOnLoad.js"></script>
-<!--	<audio id="music" loop src="sounds/bg.wav" autoplay></audio>-->
+	<script type="text/javascript">
+		$(window).on('load', function() {
+			$('#nickModal').modal('show');
+		});
+
+	</script>
+	<!--	<audio id="music" loop src="sounds/bg.wav" autoplay></audio>-->
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-<!--
-	<script>
-	document.onload = function(){
-		$(".nickModal").modal('show');
-	}
-	</script>
--->
 
 </head>
 
 <body>
-	<div class="container">
-		<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".nickModal">Zmień nick</button>
-	</div>
 
 
 
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </body>
 
