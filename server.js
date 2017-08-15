@@ -4,7 +4,8 @@ var http = require('http').createServer(handler);
 var io = require('socket.io')(http);
 var fs = require('fs');
 var versionS = "0029384751";
-var serverStartTime = process.hrtime()[0];
+var serverStartTimeS = process.hrtime()[0];
+var serverStartTimeNano = process.hrtime()[1];
 
 var players = [];
 var playersBulletsS = [];
@@ -36,8 +37,11 @@ http.listen(process.env.PORT || 3000, function () {
 });
 
 function currentTime() {
-	var time = process.hrtime()[0] - serverStartTime;
-	return time;
+	var timeS = process.hrtime()[0] - serverStartTimeS;
+
+	//console.log(timeS);
+	//console.log(process.hrtime()[1]/1000000);   //// -----------------------<<<<< Tutaj koniec 
+//	return timeS + nanoSecs;
 }
 
 
@@ -61,7 +65,8 @@ function Bullet(x, y, dirX, dirY, shootersId, enemyShoot) {
 	this.dirY = dirY;
 	this.shootersId = shootersId;
 	this.enemyShoot = enemyShoot;
-	this.lifeSpan = 3;
+	this.lifeSpan = 2;
+	this.spawnTime = currentTime();
 
 	this.delete = function () {
 		this.x = null;
@@ -80,6 +85,9 @@ function Bullet(x, y, dirX, dirY, shootersId, enemyShoot) {
 		if (this.x > canvasWidth || this.x < 0 || this.y > canvasHeight || this.y < 0) {
 			delete this.x;
 			delete this.y;
+		}
+		if(currentTime() >= this.spawnTime + this.lifeSpan){
+			this.delete();
 		}
 	}
 
@@ -136,7 +144,7 @@ function checkBullets() {
 
 function update() {
 	checkBullets();
-	//	console.log(currentTime());
+		currentTime();
 	for (var i = 0; i < playersBulletsS.length; i++) {
 		playersBulletsS[i].update();
 	}
