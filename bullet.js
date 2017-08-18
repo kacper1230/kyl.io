@@ -1,7 +1,7 @@
-function Bullet(posX, posY, dir, enemyShoot, shootersId) {
+function Bullet(posX, posY, speed, dir, enemyShoot, shootersId) {
 	this.shootersId = shootersId;
 	this.pos = createVector(posX, posY);
-	this.speed = 3.5;
+	this.speed = 3;
 	this.dir = dir.normalize().mult(this.speed);
 	this.enemyShoot = enemyShoot;
 	this.bulletLifeSpan = 1500;
@@ -12,22 +12,27 @@ function Bullet(posX, posY, dir, enemyShoot, shootersId) {
 			this.pos.add(this.dir);
 			//			danePocisku.x = this.pos.x;
 			//			danePocisku.y = this.pos.y;
-			this.checkBullets();
+			//this.checkBullets();
+			this.checkLife();
 		}
-
-		if (millis() >= this.spawnTime + this.bulletLifeSpan) {
-			delete this.pos;
-		}
-
 	}
-
 
 	this.show = function () {
 		if (this.pos) {
-			if (this.enemyShoot) {
+			if (this.shootersId != socket.id) {
 				fill(255, 0, 0);
 			} else fill(0, 255, 0);
-			rect(this.pos.x, this.pos.y, 5, 5);
+			rect(this.pos.x, this.pos.y, 3, 3);
+		}
+	}
+
+	this.checkLife = function () {
+		if (this.pos.x > width || this.pos.x < 0 || this.pos.y > height || this.pos.y < 0) {
+			delete this.pos.x;
+			delete this.pos.y;
+		}
+		if (millis() >= this.spawnTime + this.bulletLifeSpan) {
+			delete this.pos;
 		}
 	}
 

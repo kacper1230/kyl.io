@@ -17,7 +17,7 @@ function playMusic() {
 function setNick() {
 	nick = document.getElementById('nick').value;
 	$('#nickModal').modal('hide');
-	delete ball;
+	delete ball; 
 	ball = new Ball(random(width), random(height), 16, true, false);
 }
 
@@ -25,16 +25,17 @@ function setup() {
 	createCanvas(1000, 600);
 
 	//socket = io.connect('http://servergierki.eu-4.evennode.com/');
-	//socket = io.connect('http://kyl.openode.io/');
 	socket = io.connect('http://localhost:3000');
 	socket.on('polaczenie', function (data) {
 		console.log(data);
 	});
 
-	ball = new Ball(2000, 2000, 1, true, false);
+	ball = new Ball(700,1200 , 16, true, false);
 
 	//	enemy1 = new Enemy(this.ball.pos);
 	//	enemies.push(enemy1);
+
+
 
 
 	nick = "Nowy Gracz";
@@ -52,9 +53,9 @@ function setup() {
 
 
 	socket.on('playersShoots', function (b) {
-		var d = createVector(b.dirX, b.dirY);
-		var strzal = new Bullet(b.x, b.y, b.speed, d, b.enemyShoot, b.shootersId);
-		bullets.push(strzal);
+		//		var d = createVector(b.dirX, b.dirY);
+		//		var strzal = new Bullet(b.x, b.y, d, b.enemyShoot, b.shootersId);
+		//		bullets.push(strzal);
 	});
 
 	socket.on('gracze', function (players) {
@@ -63,9 +64,7 @@ function setup() {
 			if (gracze[i].id == socket.id) {
 				ball.hp = gracze[i].hp;
 			}
-		//	createP(gracze[i].nick);
 		}
-		
 	});
 
 	socket.on('newEventBox', function (eventBoxesS) {
@@ -74,15 +73,13 @@ function setup() {
 
 	socket.on('playersBullets', function (playersBulletsS) {
 		playersBulletsC = playersBulletsS;
+		//	console.log(playersBulletsC);
 	});
 
 }
 
-function draw() {
-	frameRate(60);
-	
-	
 
+function draw() {
 	background(51);
 
 	if (ball) {
@@ -93,7 +90,7 @@ function draw() {
 	if (ball.hp <= 0) {
 		delete ball;
 		ball = new Ball(random(width), random(height), 16, true, false);
-		socket.emit('respawn');
+		//ball.hp =
 	}
 
 	for (var i = 0; i < gracze.length; i++) {
@@ -149,15 +146,15 @@ function draw() {
 		bullets[i].update();
 	}
 
-	//	for (var i = 0; i < playersBulletsC.length; i++) {
-	//		//		playersBulletsC[i].show();
-	//		if (playersBulletsC[i].shootersId == socket.id) {
-	//			fill(0, 255, 0);
-	//		} else {
-	//			fill(255, 0, 0);
-	//		}
-	//		rect(playersBulletsC[i].x, playersBulletsC[i].y, 3, 3);
-	//	}
+	for (var i = 0; i < playersBulletsC.length; i++) {
+		//		playersBulletsC[i].show();
+		if (playersBulletsC[i].shootersId == socket.id) {
+			fill(0, 255, 0);
+		} else {
+			fill(255, 0, 0);
+		}
+		rect(playersBulletsC[i].x, playersBulletsC[i].y, 3, 3);
+	}
 
 
 }
@@ -170,7 +167,6 @@ function mouseClicked() {
 			y: this.ball.pos.y,
 			dirX: this.ball.dir.x,
 			dirY: this.ball.dir.y,
-			speed: 3,
 			shootersId: "",
 			enemyshoot: true,
 		}

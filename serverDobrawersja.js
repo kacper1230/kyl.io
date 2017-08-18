@@ -14,11 +14,14 @@ var eventBoxesS = [];
 var canvasHeight = 600;
 var canvasWidth = 1000;
 
-setInterval(spawnBox, 3000);
-setInterval(checkBullets, 33);
-setInterval(update, 11);
+setInterval(spawnBox, 15000);
+//setInterval(checkBullets, 33);
+setInterval(update, 33);
 
-setInterval(sendPlayers, 17);
+//setInterval(sendPlayers, 33);
+//setInterval(sendBullets, 33);
+//setInterval(sendBoxes, 33);
+setInterval(sendData, 33);
 
 
 app.use(function (req, res, next) {
@@ -37,8 +40,8 @@ function currentTime() {
 	var timeS = process.hrtime()[0] - serverStartTimeS;
 
 	//console.log(timeS);
-	//console.log(process.hrtime()[1]/1000000); 
-	return timeS;
+	//console.log(process.hrtime()[1]/1000000);   //// -----------------------<<<<< Tutaj koniec 
+//	return timeS + nanoSecs;
 }
 
 
@@ -54,12 +57,12 @@ function Player(id, nick, x, y, s, alive, enemy) {
 	this.points = 0;
 }
 
-function Bullet(x, y, speed, dirX, dirY, shootersId, enemyShoot) {
+function Bullet(x, y, dirX, dirY, shootersId, enemyShoot) {
 	this.x = x;
 	this.y = y;
-	this.speed = speed;
-	this.dirX = dirX * this.speed;
-	this.dirY = dirY * this.speed;
+	this.speed = 3.5;
+	this.dirX = dirX;
+	this.dirY = dirY;
 	this.shootersId = shootersId;
 	this.enemyShoot = enemyShoot;
 	this.lifeSpan = 2;
@@ -72,11 +75,10 @@ function Bullet(x, y, speed, dirX, dirY, shootersId, enemyShoot) {
 
 	this.update = function () {
 		if (this.x && this.y) {
-			this.x += dirX;
-			this.y += dirY;
+			this.x += dirX * this.speed;
+			this.y += dirY * this.speed;
 			this.checkLife();
 		}
-
 	}
 
 	this.checkLife = function () {
@@ -84,7 +86,7 @@ function Bullet(x, y, speed, dirX, dirY, shootersId, enemyShoot) {
 			delete this.x;
 			delete this.y;
 		}
-		if (currentTime() >= this.spawnTime + this.lifeSpan) {
+		if(currentTime() >= this.spawnTime + this.lifeSpan){
 			this.delete();
 		}
 	}
@@ -105,7 +107,6 @@ function spawnBox() {
 		var y = Math.random() * 600;
 		var eventBox = new EventBox(x, y);
 		eventBoxesS.push(eventBox);
-		io.emit('EventBox', eventBoxesS);
 	}
 }
 
@@ -120,7 +121,6 @@ function checkBullets() {
 				eventBoxesS[j] = [];
 				//delete playersBulletsS[i];
 				playersBulletsS[i].delete();
-				io.emit('EventBox', eventBoxesS);
 			}
 		} //-------Koniec Boxow
 
@@ -131,15 +131,9 @@ function checkBullets() {
 				//console.log('Trafiony zatopiony');
 				if (players[j].hp > 0) {
 					players[j].hp -= 5;
-					for (var k = 0; k < players.length; k++) {
-						if (players[k].id == playersBulletsS[i].shootersId) {
-							players[k].points += 5;
-						}
-					}
-				} 
-//				else {
-//					players[j].hp = 100;
-//				} 
+				} else {
+					players[j].hp = 100;
+				} /////---------------------------------------------------/////Tu skonczylem
 				//	delete playersBulletsS[i];
 				playersBulletsS[i].delete();
 			}
@@ -148,14 +142,13 @@ function checkBullets() {
 	}
 }
 
-
 function update() {
-	//console.log(players);
 	checkBullets();
-	//currentTime();
+		currentTime();
 	for (var i = 0; i < playersBulletsS.length; i++) {
 		playersBulletsS[i].update();
 	}
+
 
 };
 
@@ -171,10 +164,12 @@ function handler(req, res) {
 		});
 }
 
-function sendPlayers() {
+function sendData() {
 	io.emit('gracze', players);
-}
+	io.emit('playersBullets', playersBulletsS);
+	io.emit('newEventBox', eventBoxesS);
 
+}
 
 //function sendPlayers() {
 //	io.emit('gracze', players);
@@ -205,7 +200,7 @@ io.on('connection', function (socket) {
 			var newPlayer = new Player(socket.id, dane.nick, dane.x, dane.y, dane.s, true, true);
 			players.push(newPlayer);
 			socket.emit('gracze', players);
-			socket.emit('EventBox', eventBoxesS);
+			socket.emit('newEventBox', eventBoxesS);
 		}
 	});
 
@@ -221,6 +216,7 @@ io.on('connection', function (socket) {
 		for (var i = 0; i < players.length; i++) {
 			if (players[i].id == socket.id) {
 				players[i].nick = player.nick;
+				//	players[i].hp = player.hp;
 				players[i].x = player.x;
 				players[i].y = player.y;
 				players[i].s = player.s;
@@ -234,40 +230,30 @@ io.on('connection', function (socket) {
 			if (players[i].id == socket.id) {
 				players[i].alive = false;
 				players[i].points = null;
-				if (players[i].points = null) {
-					players.slice(i, 1);
-				}
+				players.slice(i, 1);
 			}
 
-		}
-	});
-	
-	socket.on('respawn',function(){
-		for(var i = 0 ; i < players.length ; i++){
-			if(players[i].id == socket.id){
-				players[i].hp = 100;
-			}
 		}
 	});
 
 
 
 	socket.on('shoot', function (danePocisku) {
-		var b = new Bullet(danePocisku.x, danePocisku.y, danePocisku.speed, danePocisku.dirX, danePocisku.dirY, socket.id, danePocisku.enemyshoot);
+		//	console.log(danePocisku.x + " " + danePocisku.y + " " + danePocisku.dirX + " " + danePocisku.dirY);
+		var b = new Bullet(danePocisku.x, danePocisku.y, danePocisku.dirX, danePocisku.dirY, socket.id, danePocisku.enemyshoot);
 		playersBulletsS.push(b);
-		io.emit("playersShoots", b);
-		//socket.broadcast.emit('playersBullets', playersBulletsS);
-		//	socket.emit('playersBullets', playersBulletsS);
+		//	socket.broadcast.emit("playersShoots", b);
+		socket.broadcast.emit('playersBullets', playersBulletsS);
+		socket.emit('playersBullets', playersBulletsS);
 		//	sendBullets();
-
 	});
 
-	//	socket.on('getHit', function (id) {
-	//		for (var i = 0; i < players.length; i++) {
-	//			if (players[i].id == id) {
-	//				players[i].points += 5;
-	//			}
-	//		}
-	//	});
+	socket.on('getHit', function (id) {
+		for (var i = 0; i < players.length; i++) {
+			if (players[i].id == id) {
+				players[i].points += 5;
+			}
+		}
+	});
 
 });
