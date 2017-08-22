@@ -44,6 +44,7 @@ function setup() {
 		x: ball.pos.x,
 		y: ball.pos.y,
 		s: ball.s,
+		speed : ball.speed,
 		alive: ball.alive,
 		v: vC,
 	}
@@ -62,13 +63,14 @@ function setup() {
 		for (var i = 0; i < gracze.length; i++) {
 			if (gracze[i].id == socket.id) {
 				ball.hp = gracze[i].hp;
+				ball.speed = gracze[i].speed;
 			}
-		//	createP(gracze[i].nick);
+			//	createP(gracze[i].nick);
 		}
-		
+
 	});
 
-	socket.on('newEventBox', function (eventBoxesS) {
+	socket.on('EventBox', function (eventBoxesS) {
 		eventBoxesC = eventBoxesS;
 	});
 
@@ -80,8 +82,8 @@ function setup() {
 
 function draw() {
 	frameRate(60);
-	
-	
+
+
 
 	background(51);
 
@@ -127,6 +129,7 @@ function draw() {
 			x: ball.pos.x,
 			y: ball.pos.y,
 			s: ball.s,
+			speed:ball.speed,
 			alive: ball.alive,
 		}
 	}
@@ -149,17 +152,6 @@ function draw() {
 		bullets[i].update();
 	}
 
-	//	for (var i = 0; i < playersBulletsC.length; i++) {
-	//		//		playersBulletsC[i].show();
-	//		if (playersBulletsC[i].shootersId == socket.id) {
-	//			fill(0, 255, 0);
-	//		} else {
-	//			fill(255, 0, 0);
-	//		}
-	//		rect(playersBulletsC[i].x, playersBulletsC[i].y, 3, 3);
-	//	}
-
-
 }
 
 function mouseClicked() {
@@ -177,12 +169,4 @@ function mouseClicked() {
 		socket.emit('shoot', danePocisku);
 	}
 
-}
-
-function event() {
-	var losowa = random(1);
-	if (losowa <= 0.01) {
-		var box = new EventRect();
-		boxes.push(box);
-	}
 }

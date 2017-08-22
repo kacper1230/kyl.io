@@ -36,19 +36,18 @@ http.listen(process.env.PORT || 3000, function () {
 function currentTime() {
 	var timeS = process.hrtime()[0] - serverStartTimeS;
 
-	//console.log(timeS);
-	//console.log(process.hrtime()[1]/1000000); 
 	return timeS;
 }
 
 
-function Player(id, nick, x, y, s, alive, enemy) {
+function Player(id, nick, x, y, s, speed, alive, enemy) {
 	this.id = id;
 	this.nick = nick;
 	this.hp = 100;
 	this.x = x;
 	this.y = y;
 	this.s = s;
+	this.speed = speed;
 	this.alive = alive;
 	this.enemy = enemy;
 	this.points = 0;
@@ -94,13 +93,14 @@ function Bullet(x, y, speed, dirX, dirY, shootersId, enemyShoot) {
 function EventBox(x, y) {
 	this.x = x;
 	this.y = y;
-	this.bonusSpeed = 5;
+	this.bonusSpeed = 1;
 }
 
 function spawnBox() {
 	var losowa = Math.random() * 100;
 	var szansa = 10;
-	if (losowa >= szansa) {
+	if (losowa <= szansa) {
+//		console.log(losowa);
 		var x = Math.random() * 1000;
 		var y = Math.random() * 600;
 		var eventBox = new EventBox(x, y);
@@ -115,10 +115,13 @@ function checkBullets() {
 		for (var j = 0; j < eventBoxesS.length; j++) {
 			var distToBox = Math.sqrt(Math.pow(playersBulletsS[i].x - eventBoxesS[j].x, 2) + (Math.pow(playersBulletsS[i].y - eventBoxesS[j].y, 2)));
 			if (distToBox <= 7) {
-				//	console.log(Math.pow(playersBulletsS[i].x - eventBoxesS[j].x,2));
-				//	console.log(distToBox + "  " + eventBoxesS[j]);
+				for (var k = 0; k < players.length; k++) {
+					if (players[k].id == playersBulletsS[i].shootersId) {
+						players[k].speed += eventBoxesS[j].bonusSpeed;
+						console.log(players[k]);
+					}
+				}
 				eventBoxesS[j] = [];
-				//delete playersBulletsS[i];
 				playersBulletsS[i].delete();
 				io.emit('EventBox', eventBoxesS);
 			}
@@ -136,11 +139,7 @@ function checkBullets() {
 							players[k].points += 5;
 						}
 					}
-				} 
-//				else {
-//					players[j].hp = 100;
-//				} 
-				//	delete playersBulletsS[i];
+				}
 				playersBulletsS[i].delete();
 			}
 		} //-----------------Koniec graczy
@@ -202,7 +201,7 @@ io.on('connection', function (socket) {
 			}
 		} else {
 			console.log('Dolaczyl gracz o id ' + socket.id);
-			var newPlayer = new Player(socket.id, dane.nick, dane.x, dane.y, dane.s, true, true);
+			var newPlayer = new Player(socket.id, dane.nick, dane.x, dane.y, dane.s, dane.speed, true, true);
 			players.push(newPlayer);
 			socket.emit('gracze', players);
 			socket.emit('EventBox', eventBoxesS);
@@ -224,6 +223,7 @@ io.on('connection', function (socket) {
 				players[i].x = player.x;
 				players[i].y = player.y;
 				players[i].s = player.s;
+				players[i].speed = player.speed;
 			}
 		}
 	});
@@ -241,10 +241,10 @@ io.on('connection', function (socket) {
 
 		}
 	});
-	
-	socket.on('respawn',function(){
-		for(var i = 0 ; i < players.length ; i++){
-			if(players[i].id == socket.id){
+
+	socket.on('respawn', function () {
+		for (var i = 0; i < players.length; i++) {
+			if (players[i].id == socket.id) {
 				players[i].hp = 100;
 			}
 		}

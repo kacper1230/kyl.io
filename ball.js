@@ -6,6 +6,7 @@ function Ball(posX, posY, s, alive, enemy) {
 	this.alive = alive;
 	this.enemy = enemy;
 	this.hp = 100;
+	this.speed = 2;
 
 	this.show = function () {
 		if (alive) {
@@ -23,11 +24,9 @@ function Ball(posX, posY, s, alive, enemy) {
 		// console.log(this.pos.x + "  " + this.pos.y);
 		this.dist = dist(this.pos.x, this.pos.y, mouseX, mouseY);
 		if (this.dist > 1) {
-			this.dir = createVector(mouseX - this.pos.x, mouseY - this.pos.y).normalize().mult(2);
+			this.dir = createVector(mouseX - this.pos.x, mouseY - this.pos.y).normalize().mult(this.speed);
 			this.pos.add(this.dir);
 		}
-		//this.checkBullets();
-
 	}
 //
 //	this.checkBullets = function () {
